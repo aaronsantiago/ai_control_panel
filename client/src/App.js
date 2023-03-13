@@ -1,26 +1,39 @@
 import logo from './logo.svg';
+import reportWebVitals from './reportWebVitals';
 import './App.css';
+import { Routes, Route, Outlet, Link } from "react-router-dom";
+import Home from "./pages/Home";
 
-async function start() {
-  await fetch("/start")
-  console.log("hi")
-}
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <p onClick={start} >
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          {/* <Route path="about" element={<About />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="*" element={<NoMatch />} /> */}
+        </Route>
+      </Routes>
+    </div>
+  );
+}
+
+function Layout() {
+  return (
+    <div>
+      {/* A "layout route" is a good place to put markup you want to
+          share across all the pages on your site, like navigation. */}
+      <nav>
+        sup
+      </nav>
+
+      <hr />
+
+      {/* An <Outlet> renders whatever child route is currently active,
+          so you can think about this <Outlet> as a placeholder for
+          the child routes we defined above. */}
+      <Outlet />
     </div>
   );
 }
