@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 const app = express();
 import {spawn} from "child_process"
+import path from "path"
 // const {spawn} = require("node:child_process");
 // const kill = require("tree-kill");
 import kill from "tree-kill"
@@ -13,51 +14,66 @@ import { JsonDB, Config } from 'node-json-db';
 // The third argument is to ask JsonDB to save the database in an human readable format. (default false)
 // The last argument is the separator. By default it's slash (/)
 var db = new JsonDB(new Config("../settings", true, true, '/'));
-await db.push("/test1","super test");
+
+try {
+  await db.getData("/integrations");
+}
+catch {
+  db.push("/integrations", []);
+  console.log("hi")
+}
 
 app.use(cors());
 app.use(express.json());
 
-app.get("/message", (req, res) => {
-  res.json({message: "Hello from server!"});
-});
 
 let bat = null;
-app.get("/start", (req, res) => {
-  bat = spawn(
-    "cmd.exe",
-    ["/k", "C:\\Users\\aaron\\stable-diffusion-webui\\webui-user.bat"],
-    {cwd: "C:\\Users\\aaron\\stable-diffusion-webui", detached: true, shell: true}
-  );
+let current = null;
 
-  bat.stdout.on("data", (data) => {
-    console.log(data.toString());
-  });
-  res.json({message: "Hello from server!"});
-});
-app.get("/stop", (req, res) => {
+app.post("/api/start", (req, res) => {
   if (bat !== null) {
     kill(bat.pid);
     bat = null;
-    res.json({message: "stopped"});
-    return;
   }
-  res.json({message: "not stopped"});
+  bat = spawn(
+    "cmd.exe",
+    ["/k", path.join(req.body.directory, req.body.binary)],
+    {cwd: req.body.directory, detached: true, shell: true}
+  );
+  current = req.body;
+});
+app.post("/api/stop", (req, res) => {
+  if (bat !== null) {
+    kill(bat.pid);
+    bat = null;
+  }
+  current = null;
 });
 
-app.post("/settings", (req, res) => {
-  console.log(req.body);
+app.get("/api/getCurrent", (req, res) => {
+  res.json(current);
+});
+
+
+app.get("/api/getIntegrations", async (req, res) => {
+  res.json(await db.getData("/integrations"));
+});
+
+app.post("/api/createIntegration", (req, res) => {
+  db.push("/integrations[]", req.body);
   res.json({message: "Hello from server!"});
 });
+
+
 
 app.listen(8000, () => {
   console.log(`Server is running on port 8000.`);
 });
 
 
-// Bind controllers to routes
-app.get("*", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "../client/build/index.html")
-  );
-});
+// // Bind controllers to routes
+// app.get("*", (req, res) => {
+//   res.sendFile(
+//     path.join(__dirname, "../client/build/index.html")
+//   );
+// });
