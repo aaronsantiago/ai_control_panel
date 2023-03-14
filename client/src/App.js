@@ -41,15 +41,15 @@ function App() {
   );
 }
 
+
 function Layout({data, setCheckIntegration}) {
   return (
-    <div>
+    <div className='overflow-x-auto'>
       {/* A "layout route" is a good place to put markup you want to
           share across all the pages on your site, like navigation. */}
-      <nav style={{height:"5vh"}}>
+      <nav className='grid gap-3 grid-flow-col h-16 auto-cols-fr'>
         <Link to="/">Back to Home</Link>
-        <Link to="use">iframe active integration</Link>
-        <button
+        <button className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
           onClick={async () => {
             setTimeout(() => {
               setCheckIntegration((check) => !check);
@@ -65,8 +65,7 @@ function Layout({data, setCheckIntegration}) {
         {data &&
           Object.entries(data).map(([key, integration]) => (
             <div>
-              <div>{key}</div>
-              <button
+              <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold rounded w-full h-full'
                 onClick={async () => {
                   console.log("checka");
                   setTimeout(() => {
@@ -76,11 +75,11 @@ function Layout({data, setCheckIntegration}) {
                   await fetch("/api/start", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify(integration),
+                    body: JSON.stringify({integrationId: key}),
                   });
                 }}
               >
-                Start
+                Start {key}
               </button>
             </div>
           ))}
