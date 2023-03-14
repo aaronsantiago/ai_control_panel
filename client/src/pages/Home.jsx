@@ -1,26 +1,10 @@
 import React, {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 
-function Home() {
-  const [data, setData] = useState(null);
-  const [activeIntegration, setActiveIntegration] = useState(null);
-  const [checkIntegration, setCheckIntegration] = useState(false);
-  useEffect(() => {
-    (async () => {
-      let res = await fetch("api/getIntegrations");
-      res = await res.json();
-      setData(res);
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      let res = await fetch("api/getCurrent");
-      res = await res.json();
-      setActiveIntegration(res);
-      console.log("checkw");
-    })();
-  }, [checkIntegration]);
+function Home(props) {
+  const setCheckIntegration = props.setCheckIntegration;
+  const activeIntegration = props.activeIntegration;
+  const data = props.data;
 
   return (
     <div>
@@ -31,7 +15,7 @@ function Home() {
             <div>
               <div>Directory: {activeIntegration.directory}</div>
               <div>Binary: {activeIntegration.binary}</div>
-              <div>URL: {activeIntegration.url}</div>
+              <div>Port: {activeIntegration.port}</div>
               <div>
                 <button
                   onClick={async () => {
@@ -51,7 +35,7 @@ function Home() {
                 <Link to="/use">View Embedded</Link>
               </div>
               <div>
-                <a href={activeIntegration.url} target="_blank">
+                <a href={"http://" + window.location.hostname + ":" + activeIntegration.port} target="_blank">
                   {" "}
                   View in new tab{" "}
                 </a>
@@ -61,11 +45,10 @@ function Home() {
         )}
         <h1>Integrations</h1>
         {data &&
-          data.map((integration) => (
+          Object.entries(data).map(([key, integration]) => (
             <div>
-              <div>Directory: {integration.directory}</div>
-              <div>Binary: {integration.binary}</div>
-              <div>URL: {integration.url}</div>
+              <div>{key}</div>
+              <div>Port: {integration.port}</div>
               <button
                 onClick={async () => {
                   console.log("checka");
@@ -76,7 +59,7 @@ function Home() {
                   await fetch("/api/start", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify(integration),
+                    body: JSON.stringify({integrationId: key}),
                   });
                 }}
               >

@@ -7,6 +7,7 @@ import path from "path"
 // const kill = require("tree-kill");
 import kill from "tree-kill"
 import { JsonDB, Config } from 'node-json-db';
+const __dirname = path.resolve();
 
 // The first argument is the database filename. If no extension, '.json' is assumed and automatically added.
 // The second argument is used to tell the DB to save after each push
@@ -20,7 +21,6 @@ try {
 }
 catch {
   db.push("/integrations", []);
-  console.log("hi")
 }
 
 app.use(cors());
@@ -30,18 +30,21 @@ app.use(express.json());
 let bat = null;
 let current = null;
 
-app.post("/api/start", (req, res) => {
+app.post("/api/start", async (req, res) => {
   if (bat !== null) {
     kill(bat.pid);
     bat = null;
   }
+  let requestId = req.body.integrationId;
+  let integration = (await db.getData(`/integrations/`))[requestId];
   bat = spawn(
     "cmd.exe",
-    ["/k", path.join(req.body.directory, req.body.binary)],
-    {cwd: req.body.directory, detached: true, shell: true}
+    ["/k", path.join(integration.directory, integration.binary)],
+    {cwd: integration.directory, detached: true, shell: true}
   );
-  current = req.body;
+  current = integration;
 });
+
 app.post("/api/stop", (req, res) => {
   if (bat !== null) {
     kill(bat.pid);
@@ -54,26 +57,18 @@ app.get("/api/getCurrent", (req, res) => {
   res.json(current);
 });
 
-
 app.get("/api/getIntegrations", async (req, res) => {
   res.json(await db.getData("/integrations"));
 });
-
-app.post("/api/createIntegration", (req, res) => {
-  db.push("/integrations[]", req.body);
-  res.json({message: "Hello from server!"});
-});
-
-
 
 app.listen(8000, () => {
   console.log(`Server is running on port 8000.`);
 });
 
+app.use(express.static(path.join(__dirname, '../client/build')));
 
-// // Bind controllers to routes
-// app.get("*", (req, res) => {
-//   res.sendFile(
-//     path.join(__dirname, "../client/build/index.html")
-//   );
-// });
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../client/build/index.html")
+  );
+});
