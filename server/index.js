@@ -9,6 +9,8 @@ import kill from "tree-kill"
 import { JsonDB, Config } from 'node-json-db';
 const __dirname = path.resolve();
 
+import pm2 from "pm2";
+
 // The first argument is the database filename. If no extension, '.json' is assumed and automatically added.
 // The second argument is used to tell the DB to save after each push
 // If you put false, you'll have to call the save() method.
@@ -30,6 +32,17 @@ app.use(express.json());
 let bat = null;
 let current = null;
 
+let pm2Instance = null;
+
+pm2.connect(function(err) {
+  if (err) {
+    console.error(err);
+    process.exit(2);
+  }
+
+  pm2Instance = pm2;
+});
+
 app.post("/api/start", async (req, res) => {
   if (bat !== null) {
     kill(bat.pid);
@@ -46,7 +59,7 @@ app.post("/api/start", async (req, res) => {
 });
 
 app.post("/api/stop", (req, res) => {
-  if (bat !== null) {
+  if (bat != null) {
     kill(bat.pid);
     bat = null;
   }
