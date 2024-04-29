@@ -3,7 +3,8 @@ import {host} from "../config";
 
 export default function Integration({integrationId, info, ...props}) {
   let [logs, setLogs] = useState(null);
-  let modalRef = useRef(null);
+  let scrollRef = useRef(null);
+  let initialScroll = useRef(false);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -19,6 +20,14 @@ export default function Integration({integrationId, info, ...props}) {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    console.log(initialScroll.current, scrollRef.current?.scrollTop, scrollRef.current?.scrollHeight);
+    if(scrollRef.current && !initialScroll.current && logs) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      initialScroll.current = true;
+    }
+  }, [logs]);
 
   return (
     <div {...props}>
@@ -62,11 +71,11 @@ export default function Integration({integrationId, info, ...props}) {
               <h2 className="m-0">{info[integrationId].pm2_env.status}</h2>
           ) : null}
         </div>
-        <div className="flex-1 overflow-auto w-full">
-          <pre>
+        <pre ref={scrollRef} className="flex-1 overflow-auto w-full">
+          {/* <pre className="overflow-visible"> */}
             <code>{logs}</code>
-          </pre>
-        </div>
+          {/* </pre> */}
+        </pre>
       </div>
     </div>
   );
