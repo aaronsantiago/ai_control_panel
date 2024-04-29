@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import Integration from './Integration';
-import { host } from '../config';
+import {useEffect, useState} from "react";
+import Integration from "./Integration";
+import {host} from "../config";
 
 function Dashboard() {
   const [integrations, setIntegrations] = useState(null);
@@ -29,22 +29,30 @@ function Dashboard() {
   }, []);
 
   return (
-    <>
-      <div>
+    <div className="w-full h-full overflow-x-auto overflow-y-hidden">
+      <div className="h-full p-5">
         {integrations === null ? (
           <div>Loading...</div>
         ) : (
-          <div className='flex'>
+          <div className="flex gap-5 h-full">
             {Object.keys(integrations).map((key) => (
-              <div className='card w-96' key={key}>
-                <Integration className="h-screen" integrationId={key} info={info} />
+              <div
+                style={{width: "48rem"}}
+                className="card bg-base-100 flex-initial"
+                key={key}
+              >
+                <Integration
+                  className="h-full"
+                  integrationId={key}
+                  info={info}
+                />
               </div>
             ))}
           </div>
         )}
       </div>
-    </>
-  )
+    </div>
+  );
 }
 
 export default Dashboard;

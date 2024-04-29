@@ -22,37 +22,46 @@ export default function Integration({integrationId, info, ...props}) {
 
   return (
     <div {...props}>
-      <div className="flex flex-col items-center justify-center w-full h-full">
-        <h1>{integrationId}</h1>
-        {info && info[integrationId] && info[integrationId]?.pm2_env?.status ? (
-          <h2>Status: {info[integrationId].pm2_env.status}</h2>
-        ) : null}
-        <button
-          onClick={async () => {
-            await fetch(host + "api/start", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({integrationId: integrationId}),
-            });
-          }}
-        >
-          Start
-        </button>
-        <button
-          onClick={async () => {
-            await fetch(host + "api/stop", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({integrationId: integrationId}),
-            });
-          }}
-        >
-          Stop
-        </button>
+      <div className="prose flex flex-col items-center justify-center w-full h-full gap-1 p-5">
+        <h1 className="text-primary">{integrationId}</h1>
+        <div className="flex flex-initial w-full justify-between">
+          <div className="join">
+            <button
+              className="btn btn-primary join-item"
+              onClick={async () => {
+                await fetch(host + "api/start", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({integrationId: integrationId}),
+                });
+              }}
+            >
+              Start
+            </button>
+            <button
+              className="btn btn-secondary join-item"
+              onClick={async () => {
+                await fetch(host + "api/stop", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({integrationId: integrationId}),
+                });
+              }}
+            >
+              Stop
+            </button>
+          </div>
+          
+          {info &&
+          info[integrationId] &&
+          info[integrationId]?.pm2_env?.status ? (
+              <h2 className="m-0">{info[integrationId].pm2_env.status}</h2>
+          ) : null}
+        </div>
         <div className="flex-1 overflow-auto w-full">
           <pre>
             <code>{logs}</code>
