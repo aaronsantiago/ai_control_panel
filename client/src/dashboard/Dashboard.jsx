@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
-
-let host = "http://localhost:8000/";
-
-if (process.env.NODE_ENV != "development") {
-  host = "/";
-};
+import Integration from './Integration';
+import { host } from '../config';
 
 function Dashboard() {
   const [integrations, setIntegrations] = useState(null);
@@ -38,39 +34,10 @@ function Dashboard() {
         {integrations === null ? (
           <div>Loading...</div>
         ) : (
-          <div>
+          <div className='flex'>
             {Object.keys(integrations).map((key) => (
-              <div key={key}>
-                <h1>{key}</h1>
-                {info && info[key] && info[key]?.pm2_env?.status ? (
-                  <h2>Status: {info[key].pm2_env.status}</h2>
-                ) : null}
-                <button
-                  onClick={async () => {
-                    await fetch(host + "api/start", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({integrationId: key}),
-                    });
-                  }}
-                >
-                  Start
-                </button>
-                <button
-                  onClick={async () => {
-                    await fetch(host + "api/stop", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({integrationId: key}),
-                    });
-                  }}
-                >
-                  Stop
-                </button>
+              <div className='card w-96' key={key}>
+                <Integration className="h-screen" integrationId={key} info={info} />
               </div>
             ))}
           </div>

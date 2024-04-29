@@ -8,6 +8,7 @@ import path from "path";
 import kill from "tree-kill";
 import {JsonDB, Config} from "node-json-db";
 const __dirname = path.resolve();
+import readLastLines from "read-last-lines";
 
 import pm2 from "pm2";
 
@@ -105,6 +106,19 @@ app.get("/api/info", async (req, res) => {
     res.json(list);
   });
   // res.json(await db.getData("/integrations"));
+});
+
+app.post("/api/logs", async (req, res) => {
+  let log;
+  try {
+    log = await readLastLines.read(
+      path.join(__dirname, "logs", req.body.integrationId + ".log"),
+      req.query.length || 1000
+    );
+  } catch (e) {
+    log = "";
+  }
+  res.send(log);
 });
 
 app.listen(8000, () => {
