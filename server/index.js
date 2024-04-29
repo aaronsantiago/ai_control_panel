@@ -86,11 +86,9 @@ app.post("/api/start", async (req, res) => {
 });
 
 app.post("/api/stop", (req, res) => {
-  if (bat != null) {
-    kill(bat.pid);
-    bat = null;
-  }
-  current = null;
+  pm2.stop(req.body.integrationId, (err, proc) => {
+    console.log("Stopped integration ", req.body.integrationId);
+  });
 });
 
 app.get("/api/getCurrent", (req, res) => {
@@ -103,7 +101,7 @@ app.get("/api/getIntegrations", async (req, res) => {
 
 app.get("/api/info", async (req, res) => {
   pm2.list((err, list) => {
-    console.log(err, list);
+    // console.log(err, list);
     res.json(list);
   });
   // res.json(await db.getData("/integrations"));
