@@ -37,12 +37,10 @@ async function startIntegration(integrationId) {
   let integration = (await db.getData(`/integrations/`))[integrationId];
   pm2.start(
     {
-      script: path.join(integration.directory, integration.binary),
-      cwd: integration.directory,
       name: integrationId,
-      interpreter: path.join(integration.directory, integration.interpreter),
       output: path.join(__dirname, "logs", integrationId + ".log"),
       error: path.join(__dirname, "logs", integrationId + ".log"),
+      ...integration
     },
     function (err, apps) {
       if (err) {
