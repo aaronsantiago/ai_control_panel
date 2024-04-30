@@ -1,48 +1,27 @@
 import express from "express";
 import cors from "cors";
 const app = express();
-import {spawn} from "child_process";
+
 import path from "path";
 import fs from "fs";
-// const {spawn} = require("node:child_process");
-// const kill = require("tree-kill");
 const __dirname = path.resolve();
 import readLastLines from "read-last-lines";
-
 import toml from "toml";
-
-import {JsonDB, Config} from "node-json-db";
-import kill from "tree-kill";
-
 import pm2 from "pm2";
 
-let config = toml.parse(fs.readFileSync(path.join(__dirname, "../settings.toml")).toString());
+let config = {};
 
-// // The first argument is the database filename. If no extension, '.json' is assumed and automatically added.
-// // The second argument is used to tell the DB to save after each push
-// // If you put false, you'll have to call the save() method.
-// // The third argument is to ask JsonDB to save the database in an human readable format. (default false)
-// // The last argument is the separator. By default it's slash (/)
-// var db = new JsonDB(new Config("../settings", true, true, "/"));
-
-console.log(config);
-
-try {
-  await db.getData("/integrations");
-} catch {
-  db.push("/integrations", []);
+function loadConfig() {
+  config = toml.parse(fs.readFileSync(path.join(__dirname, "../settings.toml")).toString());
 }
+loadConfig();
+
 
 app.use(cors());
 app.use(express.json());
 
-let bat = null;
-let current = null;
-
-let pm2Instance = null;
-
 async function startIntegration(integrationId) {
-  let integration = (await db.getData(`/integrations/`))[integrationId];
+  let integration = config.integrations[integrationId];
   pm2.start(
     {
       name: integrationId,
@@ -53,16 +32,7 @@ async function startIntegration(integrationId) {
     function (err, apps) {
       if (err) {
         console.error(err);
-        // return pm2.disconnect();
       }
-      // pm2.list((err, list) => {
-      //   console.log(err, list)
-
-      //   pm2.restart('api', (err, proc) => {
-      //     // Disconnects from PM2
-      //     pm2.disconnect()
-      //   })
-      // })
       console.log("Started integration ", integrationId);
     }
   );
@@ -74,26 +44,19 @@ pm2.connect(function (err) {
     process.exit(2);
   }
 
-  pm2Instance = pm2;
   console.log("Connected to PM2");
 });
 
 app.post("/api/start", async (req, res) => {
-  if (bat !== null) {
-    kill(bat.pid);
-    bat = null;
-  }
   startIntegration(req.body.integrationId);
 });
 
 app.get("/api/presets", async (req, res) => {
-  res.json(await db.getData("/presets"));
+  res.json(config.presets);
 });
 
 app.post("/api/preset", async (req, res) => {
-  let presets = await db.getData("/presets");
-  let preset = presets[req.body.presetId];
-  let integrations = await db.getData("/integrations");
+  let preset = config.presets[req.body.presetId];
 
   let info = await (async () => {
     return new Promise((resolve, reject) => {
@@ -108,7 +71,7 @@ app.post("/api/preset", async (req, res) => {
   })();
   console.log(info);
 
-  for (let integration in integrations) {
+  for (let integration in config.integrations) {
     if (preset.includes(integration)) {
       if (!info[integration] || info[integration].pm2_env.status != "online") {
         await startIntegration(integration);
@@ -137,15 +100,13 @@ app.get("/api/getCurrent", (req, res) => {
 });
 
 app.get("/api/getIntegrations", async (req, res) => {
-  res.json(await db.getData("/integrations"));
+  res.json(config.integrations);
 });
 
 app.get("/api/info", async (req, res) => {
   pm2.list((err, list) => {
-    // console.log(err, list);
     res.json(list);
   });
-  // res.json(await db.getData("/integrations"));
 });
 
 app.post("/api/logs", async (req, res) => {
