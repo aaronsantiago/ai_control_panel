@@ -33,6 +33,35 @@ let current = null;
 
 let pm2Instance = null;
 
+async function startIntegration(integrationId) {
+  let integration = (await db.getData(`/integrations/`))[integrationId];
+  pm2.start(
+    {
+      script: path.join(integration.directory, integration.binary),
+      cwd: integration.directory,
+      name: integrationId,
+      interpreter: path.join(integration.directory, integration.interpreter),
+      output: path.join(__dirname, "logs", integrationId + ".log"),
+      error: path.join(__dirname, "logs", integrationId + ".log"),
+    },
+    function (err, apps) {
+      if (err) {
+        console.error(err);
+        // return pm2.disconnect();
+      }
+      // pm2.list((err, list) => {
+      //   console.log(err, list)
+
+      //   pm2.restart('api', (err, proc) => {
+      //     // Disconnects from PM2
+      //     pm2.disconnect()
+      //   })
+      // })
+      console.log("Started integration ", integrationId);
+    }
+  );
+}
+
 pm2.connect(function (err) {
   if (err) {
     console.error(err);
@@ -48,43 +77,48 @@ app.post("/api/start", async (req, res) => {
     kill(bat.pid);
     bat = null;
   }
-  let requestId = req.body.integrationId;
-  let integration = (await db.getData(`/integrations/`))[requestId];
-
-  console.log("dirname", __dirname);
-  pm2.start(
-    {
-      script: path.join(integration.directory, integration.binary),
-      cwd: integration.directory,
-      name: req.body.integrationId,
-      interpreter: path.join(integration.directory, integration.interpreter),
-      output: path.join(__dirname, "logs", req.body.integrationId + ".log"),
-      error: path.join(__dirname, "logs", req.body.integrationId + ".log"),
-    },
-    function (err, apps) {
-      if (err) {
-        console.error(err);
-        return pm2.disconnect();
-      }
-      // pm2.list((err, list) => {
-      //   console.log(err, list)
-
-      //   pm2.restart('api', (err, proc) => {
-      //     // Disconnects from PM2
-      //     pm2.disconnect()
-      //   })
-      // })
-      console.log("Started integration ", req.body.integrationId);
-    }
-  );
-
-  // bat = spawn(
-  //   "cmd.exe",
-  //   ["/k", path.join(integration.directory, integration.binary)],
-  //   {cwd: integration.directory, detached: true, shell: true}
-  // );
-  // current = integration;
+  startIntegration(req.body.integrationId);
 });
+
+app.get("/api/presets", async (req, res) => {
+  res.json(await db.getData("/presets"));
+});
+
+app.post("/api/preset", async (req, res) => {
+  let presets = await db.getData("/presets");
+  let preset = presets[req.body.presetId];
+  let integrations = await db.getData("/integrations");
+
+  let info = await (async () => {
+    return new Promise((resolve, reject) => {
+      pm2.list((err, list) => {
+        let mappedRes = {};
+        for (let el of list) {
+          mappedRes[el.name] = el;
+        }
+        resolve(mappedRes);
+      });
+    });
+  })();
+  console.log(info);
+
+  for (let integration in integrations) {
+    if (preset.includes(integration)) {
+      if (!info[integration] || info[integration].pm2_env.status != "online") {
+        await startIntegration(integration);
+      }
+    }
+    else {
+      if (info[integration] && info[integration].pm2_env.status == "online") {
+        pm2.stop(integration, (err, proc) => {
+          console.log("Stopped integration ", integration);
+        });
+      }
+    }
+  }
+  res.send("OK");
+});
+
 
 app.post("/api/stop", (req, res) => {
   pm2.stop(req.body.integrationId, (err, proc) => {

@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import Integration from "./Integration";
 import {host} from "../config";
+import Presets from "./Presets";
 
 function Dashboard() {
   const [integrations, setIntegrations] = useState(null);
@@ -35,6 +36,12 @@ function Dashboard() {
           <div>Loading...</div>
         ) : (
           <div className="flex gap-5 h-full">
+            <div
+              style={{width: "48rem"}}
+              className="card bg-base-100 flex-initial"
+            >
+              <Presets className="h-full" />
+            </div>
             {Object.keys(integrations).map((key) => (
               <div
                 style={{width: "48rem"}}
