@@ -20,6 +20,7 @@
     "tree-kill": "^1.2.2"
   },
   "devDependencies": {
+    "@radically-straightforward/package": "^2.0.0",
     "nodemon": "^2.0.21"
   }
 }
