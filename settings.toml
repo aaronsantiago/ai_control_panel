@@ -1,0 +1,32 @@
+
+####################################################################################################
+# PRESETS
+####################################################################################################
+
+[presets]
+image = ["automatic1111 stable diffusion py"]
+test = ["automatic1111 stable diffusion", "textgeneration webui"]
+
+
+####################################################################################################
+# INTEGRATIONS
+####################################################################################################
+
+[integrations."automatic1111 stable diffusion"]
+directory = "D:\\OpenPrograms\\stable-diffusion-webui"
+binary = "webui-user.bat"
+interpreter = "cmd.exe"
+metadata = {port = "7860"}
+
+[integrations."automatic1111 stable diffusion py"]
+directory = "D:\\OpenPrograms\\stable-diffusion-webui"
+binary = "launch.py"
+args = ["--listen", "--share", "--api", "--opt-sdp-attention", "--opt-channelslast", "--enable-insecure-extension-access", "--cors-allow-origins *"]
+interpreter = "./venv/Scripts/python.exe"
+metadata = {port = "7860"}
+
+[integrations."textgeneration webui"]
+directory = "D:\\OpenPrograms\\text-generation-webui"
+binary = "start_server.bat"
+interpreter = "none"
+metadata = {port = "7860"}

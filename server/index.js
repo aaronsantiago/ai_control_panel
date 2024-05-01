@@ -3,21 +3,29 @@ import cors from "cors";
 const app = express();
 import {spawn} from "child_process";
 import path from "path";
+import fs from "fs";
 // const {spawn} = require("node:child_process");
 // const kill = require("tree-kill");
-import kill from "tree-kill";
-import {JsonDB, Config} from "node-json-db";
 const __dirname = path.resolve();
 import readLastLines from "read-last-lines";
 
+import toml from "toml";
+
+import {JsonDB, Config} from "node-json-db";
+import kill from "tree-kill";
+
 import pm2 from "pm2";
 
-// The first argument is the database filename. If no extension, '.json' is assumed and automatically added.
-// The second argument is used to tell the DB to save after each push
-// If you put false, you'll have to call the save() method.
-// The third argument is to ask JsonDB to save the database in an human readable format. (default false)
-// The last argument is the separator. By default it's slash (/)
-var db = new JsonDB(new Config("../settings", true, true, "/"));
+let config = toml.parse(fs.readFileSync(path.join(__dirname, "../settings.toml")).toString());
+
+// // The first argument is the database filename. If no extension, '.json' is assumed and automatically added.
+// // The second argument is used to tell the DB to save after each push
+// // If you put false, you'll have to call the save() method.
+// // The third argument is to ask JsonDB to save the database in an human readable format. (default false)
+// // The last argument is the separator. By default it's slash (/)
+// var db = new JsonDB(new Config("../settings", true, true, "/"));
+
+console.log(config);
 
 try {
   await db.getData("/integrations");
