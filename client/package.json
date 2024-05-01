@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "ace-builds": "^1.33.1",
-    "ai_control_panel": "file:..",
     "react": "^18.2.0",
     "react-ace": "^11.0.1",
     "react-dom": "^18.2.0",

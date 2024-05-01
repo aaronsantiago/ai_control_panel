@@ -13,6 +13,22 @@ let config = {};
 let rawConfig = "";
 
 function loadConfig() {
+
+  // check if the file exists
+  if (!fs.existsSync(path.join(__dirname, "settings.toml"))) {
+    // create the file
+    fs.writeFileSync(
+      path.join(__dirname, "settings.toml"),
+      `[presets]
+test = ["test"]
+
+[integrations.test]
+directory = "C:\\Users\\aaron"
+script = "C:\\Users\\aaron\\webui-user.bat"
+interpreter = "cmd.exe"
+metadata = {port = "7860"}`);
+  }
+
   rawConfig = fs.readFileSync(path.join(__dirname, "settings.toml")).toString();
   console.log(rawConfig)
   try {
@@ -146,8 +162,8 @@ app.listen(8000, () => {
   console.log(`Server is running on port 8000.`);
 });
 
-app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.static(path.join(__dirname, "_/dist")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist/index.html"));
+  res.sendFile(path.join(__dirname, "_/dist/index.html"));
 });

@@ -4,18 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "npm install --prefix client && npm install --prefix server && npm install --prefix metaclient",
     "start": "npm start --prefix server",
     "server": "npm run dev --prefix server",
     "client": "npm run dev --prefix client",
     "metaclient": "npm run dev --prefix metaclient",
     "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run metaclient\"",
-    "build": "npm run build --prefix client"
+    "clean": "rimraf odin && rimraf odin.zip",
+    "build-client": "npm run build --prefix client",
+    "setup-server-build": "cpr server odin && cpr client/dist odin/dist && cpr server/index.js odin/build/index.mjs",
+    "build-server": "cd odin && npx package",
+    "build": "npm-run-all clean build-client setup-server-build build-server"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^7.6.0",
-    "nodemon": "^2.0.21"
+    "cpr": "^3.0.1",
+    "make-dir-cli": "^3.1.0",
+    "nodemon": "^2.0.21",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^5.0.5"
   }
 }

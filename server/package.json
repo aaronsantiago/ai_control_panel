@@ -11,7 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ai_control_panel": "file:..",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "node-json-db": "^2.1.4",
@@ -22,6 +21,10 @@
   },
   "devDependencies": {
     "@radically-straightforward/package": "^2.0.0",
-    "nodemon": "^2.0.21"
+    "cpr": "^3.0.1",
+    "make-dir-cli": "^3.1.0",
+    "nodemon": "^2.0.21",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^5.0.5"
   }
 }
