@@ -24,7 +24,7 @@ export default function Presets(props) {
         <div className="flex flex-initial w-full justify-between flex-col">
           {
             presets ? Object.keys(presets).map((presetId, index) => {
-              return <div className="flex">
+              return <div key={presetId} className="flex">
                 <div tabIndex={index} className="collapse bg-base-200">
                   <div className="collapse-title text-xl font-medium">
                     {presetId}

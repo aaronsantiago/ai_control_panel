@@ -10,9 +10,18 @@ import toml from "toml";
 import pm2 from "pm2";
 
 let config = {};
+let rawConfig = "";
 
 function loadConfig() {
-  config = toml.parse(fs.readFileSync(path.join(__dirname, "../settings.toml")).toString());
+  rawConfig = fs.readFileSync(path.join(__dirname, "../settings.toml")).toString();
+  console.log(rawConfig)
+  try {
+    config = toml.parse(rawConfig);
+  }
+  catch (e) {
+    return e.message;
+  }
+  return "ok";
 }
 loadConfig();
 
@@ -49,6 +58,17 @@ pm2.connect(function (err) {
 
 app.post("/api/start", async (req, res) => {
   startIntegration(req.body.integrationId);
+});
+
+app.get("/api/raw_config", async (req, res) => {
+  res.send(rawConfig);
+});
+
+app.post("/api/raw_config", async (req, res) => {
+  rawConfig = req.body.rawConfig;
+  fs.writeFileSync(path.join(__dirname, "../settings.toml"), rawConfig);
+  let result = loadConfig();
+  res.send(result);
 });
 
 app.get("/api/presets", async (req, res) => {

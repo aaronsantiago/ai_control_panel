@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import Integration from "./Integration";
 import {host} from "../config";
 import Presets from "./Presets";
+import Editor from "./Editor";
 
 function Dashboard() {
   const [integrations, setIntegrations] = useState(null);
@@ -35,11 +36,12 @@ function Dashboard() {
         {integrations === null ? (
           <div>Loading...</div>
         ) : (
-          <div className="flex gap-5 h-full">
+          <div className="flex flex-nowrap gap-5 h-full w-full">
             <div
-              style={{width: "48rem"}}
-              className="card bg-base-100 flex-initial"
+              style={{width: "96rem"}}
+              className="card bg-base-100 flex-initial flex flex-col"
             >
+              <Editor className="w-full h-full" />
               <Presets className="h-full" />
             </div>
             {Object.keys(integrations).map((key) => (
