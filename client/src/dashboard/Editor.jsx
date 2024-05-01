@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { host } from "../config";
 import toml from "toml";
 
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-toml";
+import "ace-builds/src-noconflict/theme-monokai";
+import { useCallback } from "react";
+
 export default function Editor(props) {
   let [configText, setConfigText] = useState("");
   let [tomlParseResult, setTomlParseResult] = useState(null);
@@ -18,7 +24,7 @@ export default function Editor(props) {
       });
       configText_ = await configText_.text();
       if (configText_) {
-        textAreaRef.current.value = configText_;
+        textAreaRef.current.editor.setValue(configText_);
         setConfigText(configText_);
       }
     })();
@@ -49,17 +55,36 @@ export default function Editor(props) {
     return () => clearInterval(interval);
   }, []);
 
+  let saveConfig = useCallback(async () => {
+    let res = await fetch(host + "api/raw_config", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({rawConfig: configText}),
+    });
+    setTomlParseResult(await res.text());
+  });
+
   return (
     <div {...props}>
-      <div className="prose flex flex-col items-center justify-center w-full h-full gap-1 p-5">
-        <textarea
+      <div className="card flex flex-col w-full h-full gap-1">
+        <AceEditor
             ref={textAreaRef}
             style={{resize: "none"}}
-            className="flex-initial textarea textarea-bordered w-full h-full"
+            className="flex-initial w-full h-full"
+            mode="toml"
+            theme="monokai"
             placeholder="config toml"
-            onChange={(e) => setConfigText(e.target.value)}
-          ></textarea>
-          <div className="flex-initial w-full">{tomlParseResult}</div>
+            width="100%"
+            height="100%"
+            value={configText}
+            onChange={(e) => setConfigText(e)}
+          ></AceEditor>
+          <div className="flex-initial w-full flex justify-between p-5">
+            <div>{tomlParseResult}</div>
+            <button className="btn btn-primary" onClick={saveConfig}>save</button>
+          </div>
       </div>
     </div>
   );

@@ -19,32 +19,34 @@ export default function Presets(props) {
 
   return (
     <div {...props}>
-      <div className="prose flex flex-col items-center justify-center w-full h-full gap-1 p-5">
-        <h1 className="text-secondary">presets</h1>
-        <div className="flex flex-initial w-full justify-between flex-col">
-          {
-            presets ? Object.keys(presets).map((presetId, index) => {
-              return <div key={presetId} className="flex">
-                <div tabIndex={index} className="collapse bg-base-200">
-                  <div className="collapse-title text-xl font-medium">
-                    {presetId}
+      <div className="flex flex-col items-center justify-center w-full h-full gap-1 p-5">
+        <div className="prose">
+          <h1 className="text-secondary">presets</h1>
+          <div className="flex flex-initial w-full justify-between flex-col">
+            {
+              presets ? Object.keys(presets).map((presetId, index) => {
+                return <div key={presetId} className="flex">
+                  <div tabIndex={index} className="collapse bg-base-200">
+                    <div className="collapse-title text-xl font-medium">
+                      {presetId}
+                    </div>
+                    <div className="collapse-content">
+                      {presets[presetId].map((integration) => <p className="bg-base-100">{integration}</p>)}
+                    </div>
                   </div>
-                  <div className="collapse-content">
-                    {presets[presetId].map((integration) => <p className="bg-base-100">{integration}</p>)}
-                  </div>
+                  <button className="btn btn-primary" onClick={async () => {
+                    await fetch(host + "api/preset", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({presetId: presetId}),
+                    });
+                  }}>Start</button>
                 </div>
-                <button className="btn btn-primary" onClick={async () => {
-                  await fetch(host + "api/preset", {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({presetId: presetId}),
-                  });
-                }}>Start</button>
-              </div>
-            }) : null
-          }
+              }) : null
+            }
+          </div>
         </div>
       </div>
     </div>

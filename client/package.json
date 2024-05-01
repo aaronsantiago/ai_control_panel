@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "ace-builds": "^1.33.1",
     "react": "^18.2.0",
+    "react-ace": "^11.0.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.0",
     "toml": "^3.0.0"

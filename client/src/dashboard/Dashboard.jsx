@@ -36,18 +36,18 @@ function Dashboard() {
         {integrations === null ? (
           <div>Loading...</div>
         ) : (
-          <div className="flex flex-nowrap gap-5 h-full w-full">
+          <div className="flex flex-initial flex-nowrap gap-5 h-full w-full">
             <div
-              style={{width: "96rem"}}
-              className="card bg-base-100 flex-initial flex flex-col"
+              style={{width: "48rem"}}
+              className="bg-base-100 flex-none flex flex-col"
             >
-              <Editor className="w-full h-full" />
+              <Editor style={{height: "250%"}} className="w-full" />
               <Presets className="h-full" />
             </div>
             {Object.keys(integrations).map((key) => (
               <div
-                style={{width: "48rem"}}
-                className="card bg-base-100 flex-initial"
+                style={{width: "36rem"}}
+                className="card bg-base-100 flex-none"
                 key={key}
               >
                 <Integration

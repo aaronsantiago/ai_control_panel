@@ -6,6 +6,7 @@
 [presets]
 image = ["automatic1111 stable diffusion py"]
 test = ["automatic1111 stable diffusion", "textgeneration webui"]
+best = []
 
 
 ####################################################################################################
