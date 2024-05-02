@@ -13,7 +13,6 @@ let config = {};
 let rawConfig = "";
 
 function loadConfig() {
-
   // check if the file exists
   if (!fs.existsSync(path.join(__dirname, "settings.toml"))) {
     // create the file
@@ -26,21 +25,20 @@ test = ["test"]
 directory = "C:\\Users\\aaron"
 script = "C:\\Users\\aaron\\webui-user.bat"
 interpreter = "cmd.exe"
-metadata = {port = "7860"}`);
+metadata = {port = "7860"}`,
+    );
   }
 
   rawConfig = fs.readFileSync(path.join(__dirname, "settings.toml")).toString();
-  console.log(rawConfig)
+  console.log(rawConfig);
   try {
     config = toml.parse(rawConfig);
-  }
-  catch (e) {
+  } catch (e) {
     return e.message;
   }
   return "ok";
 }
 loadConfig();
-
 
 app.use(cors());
 app.use(express.json());
@@ -52,18 +50,18 @@ async function startIntegration(integrationId) {
       name: integrationId,
       output: path.join(__dirname, "logs", integrationId + ".log"),
       error: path.join(__dirname, "logs", integrationId + ".log"),
-      ...integration
+      ...integration,
     },
     function (err, apps) {
       if (err) {
         console.error(err);
       }
       console.log("Started integration ", integrationId);
-    }
+    },
   );
 }
 
-pm2.connect(function (err) {
+pm2.connect(true, function (err) {
   if (err) {
     console.error(err);
     process.exit(2);
@@ -112,23 +110,37 @@ app.post("/api/preset", async (req, res) => {
       if (!info[integration] || info[integration].pm2_env.status != "online") {
         await startIntegration(integration);
       }
-    }
-    else {
+    } else {
       if (info[integration] && info[integration].pm2_env.status == "online") {
-        pm2.stop(integration, (err, proc) => {
-          console.log("Stopped integration ", integration);
-        });
+        stopIntegration(integration);
       }
     }
   }
   res.send("OK");
 });
 
+function stopIntegration(integration) {
+  pm2.delete(integration, (err, proc) => {
+    console.log("Stopped integration ", integration);
+  });
+
+  // run postinstall command in the working directory
+  let postinstall = config.integrations[integration].postinstall;
+  if (postinstall) {
+    exec(
+      postinstall,
+      { cwd: config.integrations[integration].directory },
+      (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+        }
+      },
+    );
+  }
+}
 
 app.post("/api/stop", (req, res) => {
-  pm2.stop(req.body.integrationId, (err, proc) => {
-    console.log("Stopped integration ", req.body.integrationId);
-  });
+  stopIntegration(req.body.integrationId);
 });
 
 app.get("/api/getCurrent", (req, res) => {
@@ -150,7 +162,7 @@ app.post("/api/logs", async (req, res) => {
   try {
     log = await readLastLines.read(
       path.join(__dirname, "logs", req.body.integrationId + ".log"),
-      req.query.length || 1000
+      req.query.length || 1000,
     );
   } catch (e) {
     log = "";
