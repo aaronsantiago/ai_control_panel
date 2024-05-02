@@ -8,6 +8,7 @@ const __dirname = path.resolve();
 import readLastLines from "read-last-lines";
 import toml from "toml";
 import pm2 from "pm2";
+import { exec } from "child_process";
 
 let config = {};
 let rawConfig = "";
