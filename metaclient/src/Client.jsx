@@ -11,7 +11,7 @@ function Client({host}) {
       setIntegrations(res);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [host]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -24,7 +24,7 @@ function Client({host}) {
       setInfo(mappedRes);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [host]);
 
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden">

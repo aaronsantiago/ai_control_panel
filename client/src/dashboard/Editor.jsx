@@ -40,21 +40,6 @@ export default function Editor(props) {
     }
   }, [configText]);
 
-  let [presets, setPresets] = useState(null);
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      let res = await fetch(host + "api/presets", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      res = await res.json();
-      setPresets(res);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   let saveConfig = useCallback(async () => {
     let res = await fetch(host + "api/raw_config", {
       method: "POST",
@@ -64,7 +49,7 @@ export default function Editor(props) {
       body: JSON.stringify({rawConfig: configText}),
     });
     setTomlParseResult(await res.text());
-  });
+  }, [configText]);
 
   return (
     <div {...props}>

@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {host} from "../config";
 
 export default function Presets(props) {
@@ -31,7 +31,7 @@ export default function Presets(props) {
                       {presetId}
                     </div>
                     <div className="collapse-content">
-                      {presets[presetId].map((integration) => <p className="bg-base-100">{integration}</p>)}
+                      {presets[presetId].map((integration) => <p key={integration} className="bg-base-100">{integration}</p>)}
                     </div>
                   </div>
                   <button className="btn btn-primary" onClick={async () => {

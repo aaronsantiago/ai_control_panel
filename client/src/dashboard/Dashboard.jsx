@@ -9,12 +9,17 @@ function Dashboard() {
   const [info, setInfo] = useState(null);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      let res = await fetch(host + "api/getIntegrations");
-      res = await res.json();
-      setIntegrations(res);
-    }, 1000);
-    return () => clearInterval(interval);
+    let hasUnmounted = false;
+    (async () => {
+      while (!hasUnmounted) {
+        let res = await fetch(host + "api/getIntegrations");
+        res = await res.json();
+        setIntegrations(res);
+      }
+    })()
+    return () => {
+      hasUnmounted = true;
+    };
   }, []);
 
   useEffect(() => {

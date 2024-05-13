@@ -38,7 +38,7 @@ function App() {
         });
       });
     }
-  });
+  }, [config]);
   return (
     <div className="flex w-screen h-screen">
       <div className="flex h-full flex-col">
