@@ -82,7 +82,7 @@ async function startIntegration(integrationId) {
   });
 
   logBuffers[integrationId] = {
-    buffer,
+    buffer: logBuffer,
     tail,
   }
 }
