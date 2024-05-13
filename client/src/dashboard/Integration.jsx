@@ -1,11 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {host} from "../config";
 
-<<<<<<< Updated upstream
-let sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-=======
 let sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
->>>>>>> Stashed changes
 
 export default function Integration({integrationId, info, ...props}) {
   let [logs, setLogs] = useState(null);
