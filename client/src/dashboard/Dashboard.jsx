@@ -4,6 +4,8 @@ import {host} from "../config";
 import Presets from "./Presets";
 import Editor from "./Editor";
 
+let sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 function Dashboard() {
   const [integrations, setIntegrations] = useState(null);
   const [info, setInfo] = useState(null);
@@ -15,6 +17,7 @@ function Dashboard() {
         let res = await fetch(host + "api/getIntegrations");
         res = await res.json();
         setIntegrations(res);
+        await sleep(1000);
       }
     })()
     return () => {

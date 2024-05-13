@@ -1,7 +1,11 @@
 import {useEffect, useRef, useState} from "react";
 import {host} from "../config";
 
+<<<<<<< Updated upstream
 let sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+=======
+let sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+>>>>>>> Stashed changes
 
 export default function Integration({integrationId, info, ...props}) {
   let [logs, setLogs] = useState(null);
@@ -9,20 +13,25 @@ export default function Integration({integrationId, info, ...props}) {
   let initialScroll = useRef(false);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      let res = await fetch(host + "api/logs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({integrationId: integrationId}),
-      });
-      res = await res.text();
-      setLogs(res);
-      await sleep(100);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    let hasUnmounted = false;
+    (async () => {
+      while (!hasUnmounted) {
+        let res = await fetch(host + "api/logs", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({integrationId: integrationId}),
+        });
+        res = await res.text();
+        await sleep(100);
+        setLogs(res);
+      }
+    })();
+    return () => {
+      hasUnmounted = true;
+    };
+  }, [integrationId]);
 
   useEffect(() => {
     console.log(initialScroll.current, scrollRef.current?.scrollTop, scrollRef.current?.scrollHeight);
