@@ -74,7 +74,7 @@ async function startIntegration(integrationId) {
     logBuffer = log.split("\n");
   } catch (e) {}
 
-  const tail = new Tail(logPath, line => {
+  const tail = new Tail(logPath, {force: true}, line => {
     logBuffer.push(line);
     while (logBuffer.length > 1000) {
       logBuffer.shift();
@@ -190,6 +190,11 @@ app.get("/api/info", async (req, res) => {
 
 app.post("/api/logs", async (req, res) => {
   let log;
+  if (logBuffers[req.body.integrationId] != null) {
+    for (let line of logBuffers[req.body.integrationId]) {
+      log += line + "\n";
+    }
+  }
   res.send(log);
 });
 
