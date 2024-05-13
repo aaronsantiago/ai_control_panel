@@ -191,7 +191,7 @@ app.get("/api/info", async (req, res) => {
 app.post("/api/logs", async (req, res) => {
   let log;
   if (logBuffers[req.body.integrationId] != null) {
-    for (let line of logBuffers[req.body.integrationId]) {
+    for (let line of logBuffers[req.body.integrationId].buffer) {
       log += line + "\n";
     }
   }
