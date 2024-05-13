@@ -1,6 +1,8 @@
 import {useEffect, useRef, useState} from "react";
 import {host} from "../config";
 
+let sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export default function Integration({integrationId, info, ...props}) {
   let [logs, setLogs] = useState(null);
   let scrollRef = useRef(null);
@@ -17,6 +19,7 @@ export default function Integration({integrationId, info, ...props}) {
       });
       res = await res.text();
       setLogs(res);
+      await sleep(100);
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -64,7 +67,7 @@ export default function Integration({integrationId, info, ...props}) {
               Stop
             </button>
           </div>
-          
+
           {info &&
           info[integrationId] &&
           info[integrationId]?.pm2_env?.status ? (
