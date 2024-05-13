@@ -13,6 +13,10 @@ import { exec } from "child_process";
 let config = {};
 let rawConfig = "";
 
+let logBuffers = {};
+
+import Tail from "tail-file"
+
 function loadConfig() {
   // check if the file exists
   if (!fs.existsSync(path.join(__dirname, "settings.toml"))) {
@@ -46,11 +50,12 @@ app.use(express.json());
 
 async function startIntegration(integrationId) {
   let integration = config.integrations[integrationId];
+  let logPath = path.join(__dirname, "logs", integrationId + ".log");
   pm2.start(
     {
       name: integrationId,
-      output: path.join(__dirname, "logs", integrationId + ".log"),
-      error: path.join(__dirname, "logs", integrationId + ".log"),
+      output: logPath,
+      error: logPath,
       ...integration,
     },
     function (err, apps) {
@@ -60,6 +65,26 @@ async function startIntegration(integrationId) {
       console.log("Started integration ", integrationId);
     },
   );
+  let logBuffer = [];
+  try {
+    let log = await readLastLines.read(
+      logPath,
+      1000,
+    );
+    logBuffer = log.split("\n");
+  } catch (e) {}
+
+  const tail = new Tail(logPath, line => {
+    logBuffer.push(line);
+    while (logBuffer.length > 1000) {
+      logBuffer.shift();
+    }
+  });
+
+  logBuffers[integrationId] = {
+    buffer,
+    tail,
+  }
 }
 
 pm2.connect(true, function (err) {
@@ -125,6 +150,11 @@ function stopIntegration(integration) {
     console.log("Stopped integration ", integration);
   });
 
+  if (logBuffers[integration] != null) {
+    logBuffers[integration].tail.stop();
+    delete logBuffers[integration];
+  }
+
   // run postinstall command in the working directory
   let postinstall = config.integrations[integration].postinstall;
   if (postinstall) {
@@ -160,14 +190,6 @@ app.get("/api/info", async (req, res) => {
 
 app.post("/api/logs", async (req, res) => {
   let log;
-  try {
-    log = await readLastLines.read(
-      path.join(__dirname, "logs", req.body.integrationId + ".log"),
-      req.query.length || 1000,
-    );
-  } catch (e) {
-    log = "";
-  }
   res.send(log);
 });
 
