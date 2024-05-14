@@ -17,12 +17,17 @@ let logBuffers = {};
 
 import Tail from "tail-file"
 
+let configPath = "settings.toml";
+if (process.argv.length > 2) {
+  configPath = process.argv[2];
+}
+
 function loadConfig() {
   // check if the file exists
-  if (!fs.existsSync(path.join(__dirname, "settings.toml"))) {
+  if (!fs.existsSync(path.join(__dirname, configPath))) {
     // create the file
     fs.writeFileSync(
-      path.join(__dirname, "settings.toml"),
+      path.join(__dirname, configPath),
       `[presets]
 test = ["test"]
 
@@ -34,7 +39,7 @@ metadata = {port = "7860"}`,
     );
   }
 
-  rawConfig = fs.readFileSync(path.join(__dirname, "settings.toml")).toString();
+  rawConfig = fs.readFileSync(path.join(__dirname, configPath)).toString();
   console.log(rawConfig);
   try {
     config = toml.parse(rawConfig);
@@ -106,7 +111,7 @@ app.get("/api/raw_config", async (req, res) => {
 
 app.post("/api/raw_config", async (req, res) => {
   rawConfig = req.body.rawConfig;
-  fs.writeFileSync(path.join(__dirname, "settings.toml"), rawConfig);
+  fs.writeFileSync(path.join(__dirname, configPath), rawConfig);
   let result = loadConfig();
   res.send(result);
 });
