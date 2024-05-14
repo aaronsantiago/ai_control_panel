@@ -12,8 +12,11 @@
     "clean": "rimraf odin && rimraf odin.zip",
     "build-client": "npm run build --prefix client",
     "setup-server-build": "cpr server odin && cpr client/dist odin/dist && cpr server/index.js odin/build/index.mjs",
+    "postsetup-linux": "mv odin/node_modules/.bin/package odin/node_modules/.bin/package.mjs",
+    "build-server-linux": "cd odin && npx package.mjs",
     "build-server": "cd odin && npx package",
-    "build": "npm-run-all clean build-client setup-server-build build-server"
+    "build": "npm-run-all clean build-client setup-server-build build-server",
+    "build-linux": "npm-run-all clean build-client setup-server-build postsetup-linux build-server-linux"
   },
   "author": "",
   "license": "ISC",
