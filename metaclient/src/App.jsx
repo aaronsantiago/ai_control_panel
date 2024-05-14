@@ -7,6 +7,8 @@ function App() {
   let [configText, setConfigText] = useState("");
   let textAreaRef = useRef(null);
 
+  let [selectedClient, setSelectedClient] = useState(null);
+
   useEffect(() => {
     // get config from localStorage
     let configText_ = localStorage.getItem("odin_meta-config");
@@ -39,6 +41,11 @@ function App() {
       });
     }
   }, [config]);
+
+  let selectClient = useCallback((client) => {
+    setSelectedClient(client);
+  }, []);
+
   return (
     <div className="flex w-screen h-screen">
       <div className="flex h-full flex-col">
@@ -68,12 +75,15 @@ function App() {
             : null}
         </div>
       </div>
-      {config && config.clients
-        ? config.clients.map((client, index) => {
-            console.log("rendering", config);
-            return <Client key={index} host={"http://" + client + "/"} />;
-          })
-        : null}
+      <div className="h-full overflow-y-auto">
+        {config && config.clients
+          ? config.clients.map((client, index) => {
+              console.log("rendering", config);
+              return <Client key={index} host={"http://" + client + "/"} clickCallback={selectClient} />;
+            })
+          : null}
+      </div>
+      {selectedClient == null ? null : <iframe src={selectedClient} className="w-full h-full"></iframe>}
     </div>
   );
 }
